@@ -20,6 +20,12 @@ fi
 
 TMP_FILE=$(mktemp)
 
+cleanup() {
+    rm -f "$TMP_FILE"
+}
+
+trap cleanup EXIT
+
 awk -v app_key="$APP_KEY" '
 BEGIN { updated = 0 }
 /^APP_KEY=/ {
@@ -37,6 +43,6 @@ END {
 }
 ' "$ENV_FILE" > "$TMP_FILE"
 
-mv "$TMP_FILE" "$ENV_FILE"
+mv -f "$TMP_FILE" "$ENV_FILE"
 
 echo "APP_KEY atualizada em $ENV_FILE"
