@@ -41,7 +41,8 @@ cp .env.example .env
 
 ```env
 APP_URL=http://localhost:8080
-WP_HOME_URL=http://localhost:8081
+WP_HOME_URL=http://localhost:8081/
+WP_HOME=http://localhost:8081/wp-admin
 WP_SITE_TITLE="Institucional Base"
 WP_ADMIN_USER=admin
 WP_ADMIN_PASSWORD=admin123456
@@ -51,8 +52,10 @@ WP_ADMIN_EMAIL=admin@example.com
 3. Gere a chave da aplicacao:
 
 ```bash
-docker compose run --rm --build app php artisan key:generate
+sh docker/php/generate-app-key.sh
 ```
+
+Esse script gera a chave pelo container, mas atualiza o `.env` pelo host. Isso evita o erro de permissao que pode acontecer quando o Docker tenta escrever diretamente no bind mount do arquivo `.env`.
 
 4. Suba a stack:
 
