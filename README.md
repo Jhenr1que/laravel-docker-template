@@ -70,6 +70,12 @@ docker compose up --build
 - Vite: `http://localhost:5173`
 - MariaDB do WordPress: porta `3307`
 
+## Desenvolvimento de front
+
+Com a stack subida via Docker, alteracoes em SCSS, JS e assets devem refletir direto no Laravel em desenvolvimento.
+
+Isso depende de o container da app enxergar a pasta `public` do projeto para ler o arquivo `public/hot` gerado pelo Vite. Sem isso, a app pode continuar servindo o build antigo de `public/build` e parecer que a edicao nao funcionou.
+
 ## WordPress automatico
 
 O bootstrap do container faz duas coisas no primeiro start:

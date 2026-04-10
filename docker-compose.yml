@@ -16,6 +16,7 @@ services:
       - ./config:/var/www/html/config
       - ./database:/var/www/html/database
       - ./lang:/var/www/html/lang
+      - ./public:/var/www/html/public
       - ./resources:/var/www/html/resources
       - ./routes:/var/www/html/routes
       - ./bootstrap/app.php:/var/www/html/bootstrap/app.php
