@@ -1,0 +1,75 @@
+.site-header,
+.site-footer {
+    border-bottom: 1px solid var(--line);
+}
+
+.site-header__inner,
+.site-footer__grid,
+.site-footer__bottom,
+.contact-layout,
+.site-nav,
+.locale-switcher,
+.starter-grid,
+.starter-stack,
+.card-grid,
+.post-card {
+    display: grid;
+    gap: 16px;
+}
+
+.site-header__inner,
+.site-footer__grid,
+.site-footer__bottom,
+.contact-layout {
+    grid-template-columns: 1fr;
+    padding: 16px 0;
+}
+
+.brand span {
+    display: grid;
+    gap: 4px;
+}
+
+.site-nav a,
+.locale-switcher a,
+.back-link {
+    display: inline-block;
+}
+
+.contact-form {
+    display: grid;
+    gap: 12px;
+}
+
+.contact-form label {
+    display: grid;
+    gap: 6px;
+}
+
+.contact-form input,
+.contact-form textarea,
+.search-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.search-form {
+    display: grid;
+    gap: 12px;
+}
+
+.pagination-shell,
+.blog-toolbar,
+.back-link {
+    margin-top: 16px;
+}
+
+.site-footer {
+    margin-top: 24px;
+}
+@media (max-width: 980px) {
+    .site-header__inner, .contact-layout, .site-footer__grid, .site-footer__bottom { grid-template-columns: 1fr; }
+    .site-nav { justify-content: flex-start; }
+}

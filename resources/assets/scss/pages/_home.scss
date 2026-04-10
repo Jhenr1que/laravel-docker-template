@@ -1,0 +1,7 @@
+.page-home .starter-grid {
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.page-home .starter-card {
+	min-height: 160px;
+}
