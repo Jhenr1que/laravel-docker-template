@@ -1,48 +1,27 @@
 # Template Laravel + WordPress + Docker
 
-Base institucional para novos projetos com Laravel como aplicação principal, WordPress como CMS editorial e Docker para reproducibilidade local.
+Base para começar projeto com Laravel no front da aplicação e WordPress como CMS editorial.
 
-## O que este template entrega
+## O que já vem pronto
 
-- Laravel 12.
-- WordPress desacoplado como origem editorial.
-- Custom post type e taxonomia de blog já registrados no painel do WordPress.
-- Leitura do WordPress por Query Builder em conexão dedicada, sem Corcel.
-- Cache no Laravel para home, listagem, detalhe, relacionados e sitemap do blog.
-- Invalidação de cache disparada pelo WordPress quando um post é salvo.
-- Vite com Tailwind CSS v4 em modo CSS-first.
-- Estratégia de front configurável para usar Tailwind, SCSS ou modo híbrido.
-- Estrutura inicial de views, assets e i18n.
-- Bootstrap local com Docker para app, vite, wordpress e mariadb.
+- Laravel 12
+- WordPress em container separado
+- blog lido direto do banco do WordPress, sem Corcel
+- custom post type `blog_post` e taxonomia `blog_category`
+- cache no Laravel para home, blog, post, relacionados e sitemap
+- invalidação de cache quando o WordPress salva conteúdo
+- Vite com Tailwind CSS v4 em modo CSS-first
+- suporte a `tailwind`, `sass` ou `hybrid`
 
-## O que já fica reproduzível após o clone
+## Subir o projeto
 
-- A stack sobe com Docker usando `.env.example` como base.
-- O arquivo `database/database.sqlite` já existe no repositório para a conexão padrão do Laravel.
-- O container do WordPress popula localmente o core em `wordpress` quando ele não estiver presente.
-- O WordPress faz a instalação inicial automaticamente quando o banco ainda não foi inicializado.
-- O plugin de `mu-plugins` para invalidação de cache já fica pronto na base.
-
-## O que não vai junto automaticamente
-
-Se você quer reproduzir exatamente o estado editorial criado localmente, precisa versionar um dump do banco do WordPress.
-
-Sem dump, outro clone sobe a estrutura e instala um WordPress novo, mas não herda:
-
-- posts e páginas cadastrados localmente
-- menus criados no admin
-- widgets e opções salvas no banco
-- configurações de plugins gravadas no banco
-
-## Setup rápido
-
-1. Copie o ambiente:
+1. Criar o `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-2. Ajuste as variáveis mais importantes no `.env` se necessário:
+2. Ajustar o que precisar no `.env`. O básico é isso:
 
 ```env
 APP_URL=http://localhost:8080
@@ -56,186 +35,124 @@ LARAVEL_CACHE_INVALIDATION_TOKEN=change-me
 FRONTEND_STYLE_STRATEGY=hybrid
 ```
 
-3. Gere a chave da aplicação:
+3. Gerar a chave da app:
 
 ```bash
 sh docker/php/generate-app-key.sh
 ```
 
-Esse script gera a chave pelo container, mas atualiza o `.env` pelo host. Isso evita erro de permissão no bind mount do `.env`.
-
-4. Suba a stack:
+4. Subir a stack:
 
 ```bash
 docker compose up --build
 ```
 
-## Serviços esperados
+## Endereços locais
 
 - Laravel: `http://localhost:8080`
 - WordPress: `http://localhost:8081`
 - Vite: `http://localhost:5173`
-- MariaDB do WordPress: porta `3307`
+- MariaDB do WordPress: `3307`
 
-## Padrão de integração com WordPress
+## Como o blog funciona
 
-O template usa uma conexão secundária chamada `wordpress` no Laravel.
+O Laravel usa a conexão `wordpress` para ler o conteúdo editorial.
 
-As leituras do blog ficam encapsuladas em classes próprias, evitando query em controller:
+As classes principais dessa integração são:
 
 - `app/Repositories/Wordpress/WordpressPostRepository.php`
 - `app/Services/Wordpress/WordpressBlogService.php`
 - `app/Services/Wordpress/WordpressCacheInvalidator.php`
 
-O padrão da base é:
-
-1. WordPress como CMS editorial.
-2. Laravel como camada de renderização.
-3. Query Builder para consultas ao banco do WordPress.
-4. Cache no Laravel desde a leitura.
-
-No WordPress, o template já registra por padrão:
+O WordPress já sobe com:
 
 - post type `blog_post`
 - taxonomia `blog_category`
 
-## Cache com atualização quando o post muda
+## Cache do blog
 
-O template já sai com um fluxo de invalidação controlada:
+O cache é feito no Laravel e a invalidação vem do WordPress.
 
-1. O WordPress escuta `save_post` em `wordpress/wp-content/mu-plugins/cache-invalidation.php`.
-2. Ao salvar um post, envia uma chamada HTTP para o Laravel com token compartilhado.
-3. O Laravel recebe no endpoint interno `/internal/wordpress/cache/invalidate`.
-4. A aplicação incrementa a versão do cache e reaproveita novas chaves automaticamente.
+Fluxo:
 
-Variáveis de ambiente relevantes:
+1. O Laravel guarda em cache as leituras do blog.
+2. Quando um post é salvo no WordPress, o `save_post` dispara o mu-plugin.
+3. O WordPress chama `/internal/wordpress/cache/invalidate` com token.
+4. O Laravel incrementa a versão do cache e passa a ignorar as chaves antigas.
+
+Variáveis relacionadas:
 
 - `LARAVEL_CACHE_INVALIDATION_URL`
 - `LARAVEL_CACHE_INVALIDATION_TOKEN`
 - `WORDPRESS_CACHE_STORE`
 - `WORDPRESS_CACHE_TTL`
 
-Esse endpoint não deve ser exposto sem token.
-
-## Desenvolvimento de front
+## Frontend
 
 O template suporta três estratégias:
 
-- `tailwind`: carrega apenas o CSS global em Tailwind.
-- `sass`: carrega apenas SCSS global e entradas por página.
-- `hybrid`: carrega Tailwind global junto com SCSS base e SCSS por página.
+- `tailwind`: só Tailwind
+- `sass`: só SCSS
+- `hybrid`: Tailwind + SCSS
 
-Controle pela variável:
+Controle por:
 
 ```env
 FRONTEND_STYLE_STRATEGY=hybrid
 ```
 
-## Tailwind CSS v4 CSS-first
+O CSS global do Tailwind fica em `resources/assets/css/style.css`.
 
-O CSS global do Tailwind fica em:
+## O que entra no clone
 
-- `resources/assets/css/style.css`
+Depois do clone, a pessoa já recebe:
 
-Esse arquivo concentra:
+- a stack Docker pronta
+- `database/database.sqlite` no repositório
+- bootstrap automático do WordPress
+- mu-plugins versionados
+- estrutura base de assets e views
 
-- `@import "tailwindcss"`
-- `@source` para views, app e js
-- tokens básicos de tema
-- estilos globais do template
+## O que não entra no clone
 
-O Vite usa o plugin oficial do Tailwind direto no build, sem `tailwind.config.js`.
+O conteúdo editorial do WordPress não vai junto sozinho.
 
-## Estrutura base de pastas
+Sem dump SQL, outro clone sobe um WordPress novo e não herda:
 
-### Assets
+- posts e páginas criados localmente
+- menus
+- widgets
+- opções salvas no banco
+- configurações de plugins
 
-- `resources/assets/css`
-- `resources/assets/js`
-- `resources/assets/images`
-- `resources/assets/scss`
-- `resources/assets/svg`
-
-### Views
-
-- `resources/views/layouts`
-- `resources/views/includes`
-- `resources/views/components`
-- `resources/views/pages`
-- `resources/views/errors`
-
-## WordPress automático
-
-O bootstrap do container faz duas coisas no primeiro start:
-
-1. Copia os arquivos base do WordPress para a pasta local `wordpress` se o core ainda não estiver presente.
-2. Executa `wp core install` automaticamente se o banco ainda não tiver uma instalação pronta.
-
-As credenciais iniciais do admin ficam no `.env`:
-
-- `WP_ADMIN_USER`
-- `WP_ADMIN_PASSWORD`
-- `WP_ADMIN_EMAIL`
-
-Se quiser desativar a instalação automática, defina:
-
-```env
-WP_AUTO_INSTALL=false
-```
-
-## Reproduzir também o conteúdo do WordPress
-
-Se você quiser que outra pessoa clone e receba também os dados editoriais, coloque um dump SQL em `docker/mariadb/init`.
-
-Exemplo:
+Se quiser subir o projeto já com conteúdo editorial, adicione um dump em `docker/mariadb/init`, por exemplo:
 
 - `docker/mariadb/init/010-wordpress.sql`
 
-O MariaDB importa automaticamente arquivos dessa pasta somente na primeira inicialização do volume.
+Esse dump só é importado na primeira criação do volume do MariaDB.
 
-### Fluxo recomendado
-
-1. Exporte o banco do WordPress para um arquivo `.sql`.
-2. Salve esse arquivo dentro de `docker/mariadb/init`.
-3. Commit o dump junto com o projeto.
-4. Em uma máquina nova, rode `docker compose up --build`.
-
-### Importante
-
-Se o volume `mariadb-data` já existir, o MariaDB não reimporta os arquivos de `docker/mariadb/init` automaticamente.
-
-Nesse caso, para testar um bootstrap limpo:
+Para testar do zero:
 
 ```bash
 docker compose down -v
 docker compose up --build
 ```
 
-## SQLite do Laravel
+## WordPress no Git
 
-O template usa `sqlite` como conexão padrão do Laravel por default.
+O core completo do WordPress não é versionado.
 
-Por isso o arquivo `database/database.sqlite` já vai versionado. Isso evita falha no clone novo quando algum comando ou request tocar a conexão padrão da app.
-
-Se o projeto passar a usar outro banco para o Laravel, ajuste o `.env` normalmente.
-
-## Como o WordPress entra no Git
-
-Como template, o repositório não versiona o core completo do WordPress.
-
-Fica versionado apenas o que faz sentido manter como base do projeto:
+Fica no repositório só o que faz sentido manter como base:
 
 - `wordpress/wp-config-docker.php`
-- temas próprios em `wordpress/wp-content/themes`
-- plugins próprios em `wordpress/wp-content/plugins`
-- `mu-plugins` em `wordpress/wp-content/mu-plugins`
-- dump opcional em `docker/mariadb/init`
-
-O core do WordPress e arquivos locais gerados no bootstrap ficam fora do Git.
+- `wordpress/wp-content/themes`
+- `wordpress/wp-content/plugins`
+- `wordpress/wp-content/mu-plugins`
+- `docker/mariadb/init`
 
 ## Observações
 
-- O arquivo `.env` não deve ser versionado.
-- `composer.lock` e `package-lock.json` devem continuar versionados para manter reproducibilidade.
-- O Vite usa a porta definida em `VITE_PORT`. Se ela estiver ocupada, troque no `.env` antes de subir.
-- O estado exato do conteúdo do WordPress continua dependendo do dump SQL quando houver conteúdo editorial relevante.
+- não versionar `.env`
+- manter `composer.lock` e `package-lock.json`
+- se a porta do Vite estiver ocupada, ajustar `VITE_PORT`
+- se o projeto deixar de usar SQLite no Laravel, ajustar o `.env`
