@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BlogPost;
+use App\Services\Wordpress\WordpressBlogService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Throwable;
 
 class PageController extends Controller
 {
+    public function __construct(
+        private readonly WordpressBlogService $wordpressBlogService,
+    ) {}
+
     public function home(): View
     {
         return view('pages.home.index', [
@@ -34,11 +38,7 @@ class PageController extends Controller
     private function featuredPosts(): Collection
     {
         try {
-            return BlogPost::query()
-                ->published()
-                ->orderByDesc('post_date')
-                ->limit(3)
-                ->get();
+            return $this->wordpressBlogService->featuredPosts(3);
         } catch (Throwable) {
             return collect();
         }

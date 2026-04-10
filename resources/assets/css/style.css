@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@source "../../views";
+@source "../../app";
+@source "../js";
+
+@theme {
+    --font-sans: "Instrument Sans", "Segoe UI", sans-serif;
+    --color-brand-forest: #17352f;
+    --color-brand-sand: #f4efe5;
+    --color-brand-clay: #d86f45;
+    --color-brand-ink: #1f2933;
+    --spacing-shell: 1.5rem;
+}
+
+@layer base {
+    html {
+        font-family: var(--font-sans);
+        background: var(--color-brand-sand);
+        color: var(--color-brand-ink);
+    }
+
+    body {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at top right, color-mix(in srgb, var(--color-brand-clay) 18%, transparent), transparent 32%),
+            linear-gradient(180deg, #fffdf9 0%, var(--color-brand-sand) 100%);
+    }
+
+    a {
+        color: inherit;
+    }
+}
+
+@layer components {
+    .site-shell {
+        min-height: 100vh;
+    }
+
+    .section {
+        padding-block: 4rem;
+    }
+
+    .container {
+        width: min(100% - 2rem, 72rem);
+        margin-inline: auto;
+    }
+
+    .section-heading h1 {
+        font-size: clamp(2rem, 5vw, 4rem);
+        line-height: 1;
+        letter-spacing: -0.04em;
+    }
+}

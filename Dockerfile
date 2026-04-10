@@ -37,12 +37,14 @@ RUN apt-get update \
 
 COPY docker/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/start-app.sh /usr/local/bin/start-app.sh
 
 COPY --from=composer-deps /app /var/www/html
 COPY --from=frontend-build /app/public/build /var/www/html/public/build
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod +x /usr/local/bin/start-app.sh
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+CMD ["start-app.sh"]

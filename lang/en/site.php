@@ -50,6 +50,10 @@ return [
     'blog' => [
         'unavailable' => 'Content unavailable.',
     ],
+    'errors' => [
+        'not_found' => 'The page you tried to access no longer exists or has moved.',
+        'unavailable' => 'The service is temporarily unavailable.',
+    ],
     'footer' => [
         'copyright' => 'All rights reserved.',
     ],
